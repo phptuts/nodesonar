@@ -1,0 +1,45 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <h1>Distance Measured Live!! </h1>
+        <div id="distance">
+            <h2>Inches: <span id="inches"></span></h2>
+            <h2>CM: <span id="cm"></span></h2>
+        </div>
+        <canvas id="chart" width="700" height="300"></canvas>
+
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="socket-io/socket.io.js"></script>
+        <script src="smoothie/smoothie.js"></script>
+
+        <script>
+            var smoothie = new SmoothieChart({millisPerPixel:48,maxValueScale:1.31,scaleSmoothing:0.127,labels:{fillStyle:'#5eff43'},minValue:0,maxValue:30});
+            smoothie.streamTo(document.getElementById("chart"));
+            var line1 = new TimeSeries();
+
+            var socket = io('http://localhost:1800');
+
+            socket.on('connect', function(){
+                console.log('connected');
+            });
+
+            socket.on('distance-updated', function (data) {
+                console.log(data);
+                $("#inches").html(data.in);
+                $("#cm").html(data.cm);
+                line1.append(new Date().getTime(), data.in);
+
+            });
+
+
+            socket.on('disconnect', function(){
+
+            });
+            smoothie.addTimeSeries(line1);
+
+        </script>
+
+    </body>
+</html>
